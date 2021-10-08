@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -26,16 +27,21 @@ namespace CStore
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct CDT : IComparable<CDT>, IComparable
     {
-        const int MIN_YEAR = 2000;
-        const int MAX_YEAR = 2068;
+        const int    MIN_YEAR = 2000;
+        const int    MAX_YEAR = 2068;
+        const string FMT      = "yyyy-MM-dd HH:mm:ss";
 
         static readonly DateTime startDT = new(MIN_YEAR, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary> seconds since (2000,1,1) </summary>
         public readonly int Value;
 
+        public CDT(string from) : this(DateTime.ParseExact(from, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal))
+        {
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public CDT(DateTime dt) => Value = dt.Year is < MIN_YEAR or > MAX_YEAR ? 0 : (int) dt.Subtract(startDT).TotalSeconds;
+        public CDT(DateTime dt) => Value = dt.Year is < MIN_YEAR or > MAX_YEAR ? 0 : (int)dt.Subtract(startDT).TotalSeconds;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal CDT(int value) => Value = value;
@@ -49,7 +55,7 @@ namespace CStore
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CDT(int year, int month, int day) =>
-            Value = (int) new DateTime(year, month, day, 0, 0, 0, 0, DateTimeKind.Utc).Subtract(startDT).TotalSeconds;
+            Value = (int)new DateTime(year, month, day, 0, 0, 0, 0, DateTimeKind.Utc).Subtract(startDT).TotalSeconds;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CDT Trunc(CDTUnit to)
@@ -57,7 +63,7 @@ namespace CStore
             if (Value == 0)
                 return new CDT(0);
 
-            var dt = (DateTime) this;
+            var dt = (DateTime)this;
             return to switch
             {
                 CDTUnit.Year => new CDT(dt.Year, 1, 1),
@@ -70,12 +76,12 @@ namespace CStore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public CDT Add(TimeSpan ts) => new(Value + (int) ts.TotalSeconds);
+        public CDT Add(TimeSpan ts) => new(Value + (int)ts.TotalSeconds);
 
         /// <summary> return next time unit from current (next minute, hour, month, ...) </summary>
         public CDT NextNearest(CDTUnit to)
         {
-            var dt = (DateTime) Trunc(to);
+            var dt = (DateTime)Trunc(to);
             return to switch
             {
                 CDTUnit.Minute => dt.AddMinutes(1),
@@ -104,7 +110,7 @@ namespace CStore
                 var m = dt.Month - 1;
                 var d = dt.Day - 1;
 
-                return (ushort) (d & (m << 5) & (y << 9));
+                return (ushort)(d & (m << 5) & (y << 9));
             }
         }
 
@@ -164,6 +170,6 @@ namespace CStore
         public int CompareTo(object? obj)   => obj is CDT cdt ? Value.CompareTo(cdt.Value) : -1;
         public int CompareTo(CDT     other) => Value.CompareTo(other.Value);
 
-        public override string ToString() => ((DateTime) this).ToString("yyyy-MM-dd HH:mm:ss");
+        public override string ToString() => ((DateTime)this).ToString(FMT);
     }
 }

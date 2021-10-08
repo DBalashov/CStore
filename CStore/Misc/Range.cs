@@ -7,19 +7,23 @@ namespace CStore
 {
     readonly struct RangeWithKey
     {
-        public readonly CDT   Key;
-        public readonly Range Range;
-        
+        public readonly CDT Key;
+        public readonly int From;
+        public readonly int To;
+
+        public int Length => To - From;
+
         /// <param name="key"></param>
         /// <param name="from">included</param>
         /// <param name="to">not included</param>
         internal RangeWithKey(CDT key, int from, int to)
         {
-            Key   = key;
-            Range = new Range(from, to);
+            Key  = key;
+            From = from;
+            To   = to;
         }
 
-        public override string ToString() => $"{Key}: {base.ToString()}";
+        public override string ToString() => $"{Key}: {From}-{To} ({To - From} item(s))";
     }
 
     static class CDTRangeIndexExtenders
