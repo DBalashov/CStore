@@ -1,0 +1,7 @@
+*.nupkg
+**/Debug/**
+**/Release/**
+**/bin/**
+**/obj/**
+**/.idea/**
+*.DotSettings.user
