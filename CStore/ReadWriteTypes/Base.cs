@@ -5,7 +5,9 @@ namespace CStore.ReadWriteTypes
 {
     abstract class BaseReaderWriter
     {
-        internal abstract byte[] Pack(Array a, RangeWithKey range);
+        internal abstract byte[] Pack(Array a, Range range);
+
+        internal abstract Array Unpack(Span<byte> from, Range range);
 
         protected bool CanBeDictionarize<T>(Span<T> data)
         {

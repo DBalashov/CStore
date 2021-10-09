@@ -5,25 +5,44 @@ using System.Runtime.CompilerServices;
 
 namespace CStore
 {
-    readonly struct RangeWithKey
+    readonly struct DateTimeRange
     {
-        public readonly CDT Key;
-        public readonly int From;
-        public readonly int To;
+        public readonly DateTime From;
+        public readonly DateTime To;
 
-        public int Length => To - From;
-
-        /// <param name="key"></param>
-        /// <param name="from">included</param>
-        /// <param name="to">not included</param>
-        internal RangeWithKey(CDT key, int from, int to)
+        public DateTimeRange(DateTime from, DateTime to)
         {
-            Key  = key;
             From = from;
             To   = to;
         }
 
-        public override string ToString() => $"{Key}: {From}-{To} ({To - From} item(s))";
+        /// <summary> Возвращает индексы элементов From/To в keys </summary>
+        public Range GetRange(DateTime[] keys)
+        {
+            if (keys.Length == 0) return new Range(0, 0);
+
+            var idxFrom = Array.BinarySearch(keys, From);
+            var idxTo   = Array.BinarySearch(keys, To);
+
+            return new Range(idxFrom < 0 ? ~idxFrom : idxFrom,
+                             idxTo < 0 ? ~idxTo : idxTo);
+        }
+
+        public override string ToString() => $"{From} - {To}";
+    }
+
+    readonly struct RangeWithKey
+    {
+        public readonly CDT   Key;
+        public readonly Range Range;
+
+        internal RangeWithKey(CDT key, Range range)
+        {
+            Key   = key;
+            Range = range;
+        }
+
+        public override string ToString() => $"{Key}: {Range.Start}-{Range.End} ({Range.Length()} item(s))";
     }
 
     static class CDTRangeIndexExtenders
@@ -40,16 +59,52 @@ namespace CStore
                 var currentKey = values[i].Trunc(unit);
                 if (currentKey != key)
                 {
-                    yield return new RangeWithKey(key, startIndex, i);
+                    yield return new RangeWithKey(key, new Range(startIndex, i));
                     key        = currentKey;
                     startIndex = i;
                 }
             }
 
-            yield return new RangeWithKey(key, startIndex, values.Length);
+            yield return new RangeWithKey(key, new Range(startIndex, values.Length));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Length(this Range r) => r.End.Value - r.Start.Value;
+
+        public static IEnumerable<DateTimeRangeWithKey> GetKeyInRanges(this CDT from, CDT to, CDTUnit unit)
+        {
+            var start = from.Trunc(unit);
+
+            yield return new DateTimeRangeWithKey(start,
+                                                  start != from
+                                                      ? new DateTimeRange(from, from.NextNearest(unit))
+                                                      : null);
+
+            while (true)
+            {
+                var next = start.NextNearest(unit);
+                if (next > to) break;
+
+                yield return new DateTimeRangeWithKey(next,
+                                                      next <= to && to < next.NextNearest(unit)
+                                                          ? new DateTimeRange(next, to)
+                                                          : null);
+                start = next;
+            }
+        }
+    }
+
+    readonly struct DateTimeRangeWithKey
+    {
+        public readonly CDT            Key;
+        public readonly DateTimeRange? Range;
+
+        internal DateTimeRangeWithKey(CDT key, DateTimeRange? range)
+        {
+            Key   = key;
+            Range = range;
+        }
+
+        public override string ToString() => $"{Key}: {Range?.From}-{Range?.To}";
     }
 }

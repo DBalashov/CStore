@@ -16,7 +16,7 @@ namespace CStoreDev1
             var fileName = @"D:\1.bbb";
             if (File.Exists(fileName))
                 File.Delete(fileName);
-            
+
             using var fs = new PersistentContainer(fileName, new PersistentContainerSettings(512));
 
             var startFrom = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -35,10 +35,16 @@ namespace CStoreDev1
                      .Add("lat", Enumerable.Range(0, dt.Length).Select(p => (p % 80) + r.Next(1000) / 1000.0).ToArray())
                      .Add("lng", Enumerable.Range(0, dt.Length).Select(p => (p % 80) + r.Next(1000) / 1000.0).ToArray());
 
+            const string prefix = "/x/123";
+
             using var cs = new ColumnStore(fs);
             var       sw = Stopwatch.StartNew();
-            cs.Update("/x/123", cb);
+            cs.Update(prefix, cb);
             Console.WriteLine("{0} items => {1}", dt.Length, sw.ElapsedMilliseconds + " ms");
+
+            var x = cs.Read(new[] { prefix }, new[] { "int32" },
+                            new DateTime(2021, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+                            new DateTime(2021, 6, 11, 0, 0, 0, DateTimeKind.Utc));
         }
     }
 }
