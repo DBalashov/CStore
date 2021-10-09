@@ -9,4 +9,13 @@
       <PackageReference Include="FileContainer" Version="2021.9.27" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Misc\CDT.Extenders.cs">
+        <DependentUpon>CDT.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Misc\KeyValueArrayAccumulator.cs">
+        <DependentUpon>KeyValueArray..cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

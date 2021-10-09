@@ -6,17 +6,31 @@ namespace CStore
 {
     public sealed class ColumnBatch
     {
-        public readonly CDT[] DT;
-
         readonly Dictionary<string, Array> values = new(StringComparer.InvariantCultureIgnoreCase);
 
+        public readonly DateTime[] DT;
         public Array this[string name] => values[name];
-
         public string[] Columns => values.Keys.ToArray();
 
-        public ColumnBatch(DateTime[] dt) => DT = checkAndConvert(dt);
+        public CDT[] Keys
+        {
+            get
+            {
+                var r = new CDT[DT.Length];
+                r[0] = DT[0];
 
-        CDT[] checkAndConvert(DateTime[] dt)
+                for (var i = 1; i < DT.Length; i++)
+                {
+                    r[i] = DT[i];
+                    if (r[i] <= r[i - 1])
+                        throw new ArgumentException("All date/time must be unique and sorted by ascending", nameof(DT));
+                }
+
+                return r;
+            }
+        }
+
+        public ColumnBatch(DateTime[] dt)
         {
             if (dt == null)
                 throw new ArgumentNullException(nameof(dt));
@@ -24,17 +38,7 @@ namespace CStore
             if (dt.Length == 0)
                 throw new ArgumentException("Must not be empty", nameof(dt));
 
-            var r = new CDT[dt.Length];
-            r[0] = dt[0];
-
-            for (var i = 1; i < dt.Length; i++)
-            {
-                r[i] = dt[i];
-                if (r[i] <= r[i - 1])
-                    throw new ArgumentException("All date/time must be unique and sorted by ascending", nameof(dt));
-            }
-
-            return r;
+            DT = dt;
         }
 
         public ColumnBatch Add(string columnName, Array columnValues, bool withReplaceExisting = false)

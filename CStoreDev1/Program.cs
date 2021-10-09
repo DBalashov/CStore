@@ -42,9 +42,9 @@ namespace CStoreDev1
             cs.Update(prefix, cb);
             Console.WriteLine("{0} items => {1}", dt.Length, sw.ElapsedMilliseconds + " ms");
 
-            var x = cs.Read(new[] { prefix }, new[] { "int32" },
-                            new DateTime(2021, 3, 15, 0, 0, 0, DateTimeKind.Utc),
-                            new DateTime(2021, 6, 11, 0, 0, 0, DateTimeKind.Utc));
+            var x = cs.Read(new[] { prefix }, new[] { "int32", "lat", "lng" },
+                            new DateTimeRange(new DateTime(2021, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+                                              new DateTime(2021, 6, 11, 0, 0, 0, DateTimeKind.Utc)));
         }
     }
 }
