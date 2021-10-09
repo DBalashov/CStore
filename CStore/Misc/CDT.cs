@@ -8,7 +8,6 @@ namespace CStore
 {
     public enum CDTUnit
     {
-        Year,
         Month,
         Day,
         Hour,
@@ -66,7 +65,6 @@ namespace CStore
             var dt = (DateTime)this;
             return to switch
             {
-                CDTUnit.Year => new CDT(dt.Year, 1, 1),
                 CDTUnit.Month => new CDT(dt.Year, dt.Month, 1),
                 CDTUnit.Day => new CDT(dt.Year, dt.Month, dt.Day),
                 CDTUnit.Hour => new CDT(new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, DateTimeKind.Utc)),
@@ -88,7 +86,6 @@ namespace CStore
                 CDTUnit.Hour => dt.AddHours(1),
                 CDTUnit.Day => dt.AddDays(1),
                 CDTUnit.Month => dt.AddMonths(1),
-                CDTUnit.Year => dt.AddYears(1),
                 _ => throw new NotSupportedException(to.ToString())
             };
         }

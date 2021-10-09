@@ -2,7 +2,7 @@
 
 namespace CStore
 {
-    readonly struct KeyValueArray<K>
+    public readonly struct KeyValueArray<K>
     {
         public readonly K[]   Keys;
         public readonly Array Values;

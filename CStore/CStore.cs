@@ -34,14 +34,19 @@ namespace CStore
             }
         }
 
-        public Dictionary<string, ColumnBatch> Read(string[] prefixes, string[] columnNames, DateTime sd, DateTime ed)
+        public Dictionary<string, Dictionary<string, KeyValueArray<DateTime>>> Read(string[] prefixes, string[] columnNames, DateTime sd, DateTime ed)
         {
-            var r = new Dictionary<string, Dictionary<string, List<KeyValueArray<DateTime>>>>();
-            foreach (var prefix in prefixes)
+            var r = new Dictionary<string, Dictionary<string, KeyValueArray<DateTime>>>(StringComparer.InvariantCultureIgnoreCase);
+            columnNames = columnNames.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
+            
+            foreach (var prefix in prefixes.Distinct(StringComparer.InvariantCultureIgnoreCase))
             {
                 var parts = ((CDT)sd).GetKeyInRanges(ed, unit).ToArray();
+
+                var prefixColumns = new Dictionary<string, KeyValueArray<DateTime>>();
                 foreach (var columnName in columnNames)
                 {
+                    var accum = new KeyValueArrayAccumulator<DateTime>();
                     foreach (var part in parts)
                     {
                         var sectionName = buildSectionName(prefix, part.Key, columnName);
@@ -49,19 +54,17 @@ namespace CStore
                         if (sectionData == null) continue;
 
                         var unpacked = sectionData.Unpack(part.Range);
-
-                        if (!r.TryGetValue(prefix, out var byPrefixes))
-                            r.Add(prefix, byPrefixes = new Dictionary<string, List<KeyValueArray<DateTime>>>(StringComparer.InvariantCultureIgnoreCase));
-
-                        if (!byPrefixes.TryGetValue(columnName, out var byColumns))
-                            byPrefixes.Add(columnName, byColumns = new List<KeyValueArray<DateTime>>());
-
-                        byColumns.Add(unpacked);
+                        accum.Add(unpacked);
                     }
+
+                    var a = accum.Merge();
+                    prefixColumns.Add(columnName, a);
                 }
+                
+                r.Add(prefix, prefixColumns);
             }
 
-            return null;
+            return r;
         }
 
         string buildSectionName(string prefix, CDT key, string col) => $"{prefix}/{col}/{key.ToString()}";
