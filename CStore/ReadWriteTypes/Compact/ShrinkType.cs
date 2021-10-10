@@ -73,7 +73,7 @@ namespace CStore.ReadWriteTypes
                 _ => throw new NotSupportedException(r.KeyType.ToString())
             };
         }
-
+        
         #endregion
 
         #region Compact (Int64)
@@ -98,9 +98,9 @@ namespace CStore.ReadWriteTypes
 
         #endregion
 
-        #region Int -> Short, Int -> Byte
+        #region Compact (Int -> Short, Int -> Byte)
 
-        static Span<byte> CompactToShort(this int[] data)
+        internal static Span<byte> CompactToShort(this int[] data)
         {
             var target = new ushort[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -108,7 +108,7 @@ namespace CStore.ReadWriteTypes
             return MemoryMarshal.Cast<ushort, byte>(target);
         }
 
-        static byte[] CompactToByte(this int[] data)
+        internal static Span<byte> CompactToByte(this int[] data)
         {
             var target = new byte[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -118,7 +118,7 @@ namespace CStore.ReadWriteTypes
 
         #endregion
 
-        static Span<byte> CompactToInt(this int[] data) => MemoryMarshal.Cast<int, byte>(data);
+        internal static Span<byte> CompactToInt(this int[] data) => MemoryMarshal.Cast<int, byte>(data);
 
         #region Uncompact (Int)
 

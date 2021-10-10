@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace CStore.ReadWriteTypes
 {
@@ -38,6 +39,51 @@ namespace CStore.ReadWriteTypes
 
             return new DictionarizeResult<T>(indexes, r.OrderBy(p => p.Value).Select(p => p.Key).ToArray());
         }
+
+        internal static UncompactIndexesResult UncompactIndexes(this Span<byte> span, DictionaryKey keyType, int keyCount, Range range)
+        {
+            switch (keyType)
+            {
+                case DictionaryKey.Byte:
+                {
+                    var storedIndexes = span.Slice(0, keyCount)
+                                            .Slice(range.Start.Value, range.End.Value);
+                    var indexes = new int[storedIndexes.Length];
+                    for (var i = 0; i < storedIndexes.Length; i++)
+                        indexes[i] = storedIndexes[i];
+
+                    return new UncompactIndexesResult(span.Slice(keyCount), indexes);
+                }
+
+                case DictionaryKey.Short:
+                {
+                    var storedIndexes = MemoryMarshal.Cast<byte, ushort>(span.Slice(0, keyCount * 2))
+                                                     .Slice(range.Start.Value, range.End.Value);
+                    var indexes = new int[storedIndexes.Length];
+                    for (var i = 0; i < storedIndexes.Length; i++)
+                        indexes[i] = storedIndexes[i];
+                    return new UncompactIndexesResult(span.Slice(keyCount * 2), indexes);
+                }
+
+                case DictionaryKey.Int:
+                {
+                    var indexes = MemoryMarshal.Cast<byte, int>(span.Slice(0, keyCount * 4))
+                                               .Slice(range.Start.Value, range.End.Value);
+                    return new UncompactIndexesResult(span.Slice(keyCount * 4), indexes);
+                }
+
+                default: throw new NotSupportedException(keyType.ToString());
+            }
+        }
+        
+        internal static Span<byte> CompactIndexes<T>(this DictionarizeResult<T> r) =>
+            r.KeyType switch
+            {
+                DictionaryKey.Byte => r.Indexes.CompactToByte(),
+                DictionaryKey.Short => r.Indexes.CompactToShort(),
+                DictionaryKey.Int => r.Indexes.CompactToInt(),
+                _ => throw new NotSupportedException(r.KeyType.ToString())
+            };
     }
 
     readonly struct DictionarizeResult<T>
@@ -59,5 +105,17 @@ namespace CStore.ReadWriteTypes
         }
 
         public override string ToString() => $"{Indexes.Length} -> {Values.Length} ({KeyType})";
+    }
+
+    readonly ref struct UncompactIndexesResult
+    {
+        public readonly Span<byte> Span;
+        public readonly Span<int>  Indexes;
+
+        internal UncompactIndexesResult(Span<byte> span, Span<int> indexes)
+        {
+            Span    = span;
+            Indexes = indexes;
+        }
     }
 }
