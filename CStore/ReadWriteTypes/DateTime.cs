@@ -11,8 +11,8 @@ namespace CStore.ReadWriteTypes
         internal override byte[] Pack(Array a, Range range)
         {
             var values = (DateTime[])a;
-
-            var data = pool.Rent(range.Length());
+            var data   = pool.Rent(range.Length());
+            
             for (int i = range.Start.Value, index = 0; i < range.End.Value; i++, index++)
                 data[index] = values[i];
 

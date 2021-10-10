@@ -5,8 +5,10 @@ namespace CStore.ReadWriteTypes
 {
     sealed class GuidReaderWriter : BaseReaderWriter
     {
-        internal override byte[] Pack(Array a, Range range) =>
-            MemoryMarshal.Cast<Guid, byte>(((Guid[])a).AsSpan(range)).ToArray();
+        internal override byte[] Pack(Array a, Range range)
+        {
+            return MemoryMarshal.Cast<Guid, byte>(((Guid[])a).AsSpan(range)).ToArray();
+        }
 
         internal override Array Unpack(Span<byte> from, Range range) =>
             MemoryMarshal.Cast<byte, Guid>(from)

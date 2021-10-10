@@ -8,6 +8,7 @@ namespace CStore
     {
         static readonly Dictionary<ColumnStoreType, BaseReaderWriter> readerWriters = new()
         {
+            [ColumnStoreType.Bool]     = new BoolReaderWriter(),
             [ColumnStoreType.Byte]     = new ByteReaderWriter(),
             [ColumnStoreType.Short]    = new ShortReaderWriter(),
             [ColumnStoreType.Int]      = new Int32ReaderWriter(),
@@ -16,13 +17,14 @@ namespace CStore
             [ColumnStoreType.TimeSpan] = new TimeSpanReaderWriter(),
             [ColumnStoreType.DateTime] = new DateTimeReaderWriter(),
             [ColumnStoreType.String]   = new StringReaderWriter(),
-            [ColumnStoreType.Guid]     = new StringReaderWriter()
+            [ColumnStoreType.Guid]     = new GuidReaderWriter()
         };
 
         internal static ColumnStoreType? DetectDataType(this Array a)
         {
             var type = a.GetElementType();
             
+            if (type == typeof(bool)) return ColumnStoreType.Bool;
             if (type == typeof(byte)) return ColumnStoreType.Byte;
             if (type == typeof(short)) return ColumnStoreType.Short;
             if (type == typeof(int)) return ColumnStoreType.Int;
@@ -31,6 +33,7 @@ namespace CStore
             if (type == typeof(TimeSpan)) return ColumnStoreType.TimeSpan;
             if (type == typeof(DateTime)) return ColumnStoreType.DateTime;
             if (type == typeof(Guid)) return ColumnStoreType.Guid;
+            if (type == typeof(string)) return ColumnStoreType.String;
 
             return null;
         }

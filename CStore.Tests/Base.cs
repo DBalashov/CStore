@@ -53,11 +53,11 @@ namespace CStore.Tests
 
             if (data.Values.GetValue(0) is double)
                 for (var i = 0; i < data.Values.Length; i++)
-                    Assert.AreEqual((double)data.Values.GetValue(i)!, (double)original.GetValue(i)!, 0.001,
+                    Assert.AreEqual((double)original.GetValue(i)!, (double)data.Values.GetValue(i)!, 0.001,
                                     "{0} values [{1}]: expected {2}, but {3}", columnName, i, original.GetValue(i), data.Values.GetValue(i));
             else
                 for (var i = 0; i < data.Values.Length; i++)
-                    Assert.AreEqual(data.Values.GetValue(i), original.GetValue(i),
+                    Assert.AreEqual(original.GetValue(i), data.Values.GetValue(i),
                                     "{0} values [{1}]: expected {2}, but {3}", columnName, i, original.GetValue(i), data.Values.GetValue(i));
         }
     }

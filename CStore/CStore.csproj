@@ -23,9 +23,6 @@
       <Compile Update="CStore.Update.cs">
         <DependentUpon>CStore.cs</DependentUpon>
       </Compile>
-      <Compile Update="ReadWriteTypes\Int32.Dictionary.cs">
-        <DependentUpon>Int32.cs</DependentUpon>
-      </Compile>
     </ItemGroup>
 
 </Project>

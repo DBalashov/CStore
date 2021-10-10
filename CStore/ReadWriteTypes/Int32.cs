@@ -3,14 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace CStore.ReadWriteTypes
 {
-    sealed partial class Int32ReaderWriter : BaseReaderWriter
+    sealed class Int32ReaderWriter : BaseReaderWriter
     {
         internal override byte[] Pack(Array a, Range range)
         {
             var span = ((int[])a).AsSpan(range);
 
             if (span.CanBeDictionarize())
-                return packAsDictionary(a, range);
+                return a.Dictionarize<int>(range).Compact().Combine();
 
             var buff = new byte[2 + span.Length * 4];
             buff[0] = (byte)CompactType.None;
@@ -25,8 +25,10 @@ namespace CStore.ReadWriteTypes
             var compactType = (CompactType)from[0];
             return compactType switch
             {
-                CompactType.Dictionary => unpackAsDictionary(from, range),
-                _ => MemoryMarshal.Cast<byte, int>(from.Slice(2)).Slice(range.Start.Value, range.Length()).ToArray()
+                CompactType.Dictionary => from.UndictionarizeToInt(range),
+                _ => MemoryMarshal.Cast<byte, int>(from.Slice(2))
+                                  .Slice(range.Start.Value, range.Length())
+                                  .ToArray()
             };
         }
     }

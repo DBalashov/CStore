@@ -11,15 +11,16 @@ namespace CStore.ReadWriteTypes
 
     public enum ColumnStoreType
     {
-        Byte     = 0,
-        Short    = 1,
-        Int      = 2,
-        Int64    = 3,
-        Double   = 4,
-        DateTime = 5,
-        TimeSpan = 6,
-        String   = 7,
-        Guid     = 8,
+        Bool     = 0,
+        Byte     = 1,
+        Short    = 2,
+        Int      = 3,
+        Int64    = 4,
+        Double   = 5,
+        DateTime = 6,
+        TimeSpan = 7,
+        String   = 8,
+        Guid     = 9,
     }
 
     public enum CompactType
