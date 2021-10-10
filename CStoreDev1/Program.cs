@@ -19,7 +19,7 @@ namespace CStoreDev1
 
             using var fs = new PersistentContainer(fileName, new PersistentContainerSettings(512));
 
-            var startFrom = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var startFrom = new DateTime(2019, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var end       = new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             var dt = Enumerable.Range(0, (int)(end - startFrom).TotalHours)
@@ -30,6 +30,7 @@ namespace CStoreDev1
                      //.Add("str", Enumerable.Range(0, dt.Length).Select(p => "Item_" + (p % 10)).ToArray())
                      .Add("dbl", Enumerable.Range(0, dt.Length).Select(p => (double)p / (1 + p) + (p % 10)).ToArray())
                      .Add("int32", Enumerable.Range(0, dt.Length).Select(p => p).ToArray())
+                     .Add("int33", Enumerable.Range(0, dt.Length).Select(p => p % 30).ToArray())
                      .Add("ts", Enumerable.Range(0, dt.Length).Select(p => TimeSpan.FromSeconds(r.Next(3600))).ToArray())
                      .Add("by", Enumerable.Range(0, dt.Length).Select(p => (byte)((p / 25) % 8)).ToArray())
                      .Add("lat", Enumerable.Range(0, dt.Length).Select(p => (p % 80) + r.Next(1000) / 1000.0).ToArray())

@@ -4,19 +4,19 @@ using System.Linq;
 
 namespace CStore
 {
-    sealed class KeyValueArrayAccumulator<K>
+    sealed class KeyValueArrayAccumulator
     {
-        int                             elementCount = 0;
-        readonly List<KeyValueArray<K>> items        = new(12);
+        int                          elementCount = 0;
+        readonly List<KeyValueArray> items        = new(12);
 
-        public void Add(KeyValueArray<K> item)
+        public void Add(KeyValueArray item)
         {
             if (item.Keys.Length == 0) return;
 
             if (items.Count > 0)
             {
-                var collectedType = items[0].Values.GetValue(0)!.GetType();
-                var newItemType   = item.Values.GetValue(0)!.GetType();
+                var collectedType = items[0].Values.GetElementType();
+                var newItemType   = item.Values.GetElementType();
                 if (collectedType != newItemType)
                     throw new ArrayTypeMismatchException($"Can't add different type (owned type: {collectedType}, added type: {newItemType}");
             }
@@ -25,13 +25,13 @@ namespace CStore
             elementCount += item.Keys.Length;
         }
 
-        public KeyValueArray<K> Merge()
+        public KeyValueArray Merge()
         {
             if (!items.Any())
-                return new KeyValueArray<K>(Array.Empty<K>(), Array.Empty<object>());
+                return new KeyValueArray(Array.Empty<CDT>(), Array.Empty<object>());
 
-            var keys   = new K[elementCount];
-            var values = Array.CreateInstance(items[0].Values.GetValue(0)!.GetType(), elementCount);
+            var keys   = new CDT[elementCount];
+            var values = Array.CreateInstance(items[0].Values.GetElementType(), elementCount);
 
             int offset = 0;
             foreach (var item in items)
@@ -41,7 +41,7 @@ namespace CStore
                 offset += item.Keys.Length;
             }
 
-            return new KeyValueArray<K>(keys, values);
+            return new KeyValueArray(keys, values);
         }
 
         public override string ToString() => $"Elements={elementCount}";

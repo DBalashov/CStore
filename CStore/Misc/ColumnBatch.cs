@@ -6,29 +6,13 @@ namespace CStore
 {
     public sealed class ColumnBatch
     {
-        readonly Dictionary<string, Array> values = new(StringComparer.InvariantCultureIgnoreCase);
+        internal readonly Dictionary<string, Array> values = new(StringComparer.InvariantCultureIgnoreCase);
 
-        public readonly DateTime[] DT;
+        public readonly CDT[] Keys;
+
         public Array this[string name] => values[name];
+
         public string[] Columns => values.Keys.ToArray();
-
-        public CDT[] Keys
-        {
-            get
-            {
-                var r = new CDT[DT.Length];
-                r[0] = DT[0];
-
-                for (var i = 1; i < DT.Length; i++)
-                {
-                    r[i] = DT[i];
-                    if (r[i] <= r[i - 1])
-                        throw new ArgumentException("All date/time must be unique and sorted by ascending", nameof(DT));
-                }
-
-                return r;
-            }
-        }
 
         public ColumnBatch(DateTime[] dt)
         {
@@ -38,15 +22,23 @@ namespace CStore
             if (dt.Length == 0)
                 throw new ArgumentException("Must not be empty", nameof(dt));
 
-            DT = dt;
+            Keys    = new CDT[dt.Length];
+            Keys[0] = dt[0];
+
+            for (var i = 1; i < dt.Length; i++)
+            {
+                Keys[i] = dt[i];
+                if (Keys[i] <= Keys[i - 1])
+                    throw new ArgumentException("All date/time must be unique and sorted by ascending", nameof(Keys));
+            }
         }
 
         public ColumnBatch Add(string columnName, Array columnValues, bool withReplaceExisting = false)
         {
             if (columnValues == null)
                 throw new ArgumentNullException(nameof(columnValues));
-            if (columnValues.Length != DT.Length)
-                throw new ArgumentException($"'{columnName}' must be exactly the same length as date/time ({DT.Length})", nameof(columnValues));
+            if (columnValues.Length != Keys.Length)
+                throw new ArgumentException($"'{columnName}' must be exactly the same length as date/time ({Keys.Length})", nameof(columnValues));
 
             if (string.IsNullOrEmpty(columnName))
                 throw new ArgumentNullException(nameof(columnName));
@@ -63,6 +55,6 @@ namespace CStore
             return this;
         }
 
-        public override string ToString() => $"{DT[0]} - ${DT[^1]}: {DT.Length} => {values.Count} columns";
+        public override string ToString() => $"{Keys[0]} - ${Keys[^1]}: {Keys.Length} => {values.Count} columns";
     }
 }

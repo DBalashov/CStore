@@ -23,7 +23,7 @@ namespace CStore
         public DateTimeRange(DateTime from, DateTime to) => (From, To) = (from, to);
 
         /// <summary> Возвращает индексы элементов From/To в keys </summary>
-        public Range GetRange(DateTime[] keys)
+        public Range GetRange(CDT[] keys)
         {
             if (keys.Length == 0) return new Range(0, 0);
 

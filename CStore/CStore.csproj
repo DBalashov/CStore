@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,6 +16,15 @@
       </Compile>
       <Compile Update="Misc\KeyValueArrayAccumulator.cs">
         <DependentUpon>KeyValueArray..cs</DependentUpon>
+      </Compile>
+      <Compile Update="CStore.Read.cs">
+        <DependentUpon>CStore.cs</DependentUpon>
+      </Compile>
+      <Compile Update="CStore.Update.cs">
+        <DependentUpon>CStore.cs</DependentUpon>
+      </Compile>
+      <Compile Update="ReadWriteTypes\Int32.Dictionary.cs">
+        <DependentUpon>Int32.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

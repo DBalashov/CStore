@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace CStore
 {
     static partial class PackUnpackExtenders
     {
-        public static byte[] Pack(this KeyValueArray<CDT> item, Range range)
+        public static byte[] Pack(this KeyValueArray item, Range range)
         {
             // values:
             var columnType = DetectDataType(item.Values);
             if (!columnType.HasValue)
-                throw new NotSupportedException("Not supported type: " + item.Values.GetValue(0)?.GetType());
+                throw new NotSupportedException("Not supported type: " + item.Values.GetElementType());
 
             var readerWriter = readerWriters[columnType.Value];
             var values       = readerWriter.Pack(item.Values, range);
@@ -21,15 +20,16 @@ namespace CStore
             var span             = buff.AsSpan();
 
             BitConverter.TryWriteBytes(span, range.Length()); // 4 bytes
-            span[4] = (byte)columnType.Value;                 // 1 byte
+            
+            span[4] = (byte)columnType.Value;                 // 1 byte (ColumnStoreType)
             span[5] = 0;                                      // 1 byte (reserved)
             span[6] = 0;                                      // 1 byte (reserved)
             span[7] = 0;                                      // 1 byte (reserved)
 
             span = span.Slice(4 + 4);
-            MemoryMarshal.Cast<CDT, byte>(item.Keys.AsSpan(range)).CopyTo(span);
+            var length = PackKeys(item.Keys, range, span);
 
-            span = span.Slice(keyLengthInBytes);
+            span = span.Slice(length);
             values.CopyTo(span);
 
             return buff;

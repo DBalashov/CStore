@@ -15,15 +15,14 @@ namespace CStore
             [ColumnStoreType.Double]   = new DoubleReaderWriter(),
             [ColumnStoreType.TimeSpan] = new TimeSpanReaderWriter(),
             [ColumnStoreType.DateTime] = new DateTimeReaderWriter(),
-            [ColumnStoreType.String]   = new StringReaderWriter()
+            [ColumnStoreType.String]   = new StringReaderWriter(),
+            [ColumnStoreType.Guid]     = new StringReaderWriter()
         };
 
         internal static ColumnStoreType? DetectDataType(this Array a)
         {
-            var type = a.GetValue(0)?.GetType();
-            if (type == null)
-                throw new InvalidOperationException("Type can't be null");
-
+            var type = a.GetElementType();
+            
             if (type == typeof(byte)) return ColumnStoreType.Byte;
             if (type == typeof(short)) return ColumnStoreType.Short;
             if (type == typeof(int)) return ColumnStoreType.Int;
@@ -31,6 +30,7 @@ namespace CStore
             if (type == typeof(double)) return ColumnStoreType.Double;
             if (type == typeof(TimeSpan)) return ColumnStoreType.TimeSpan;
             if (type == typeof(DateTime)) return ColumnStoreType.DateTime;
+            if (type == typeof(Guid)) return ColumnStoreType.Guid;
 
             return null;
         }
