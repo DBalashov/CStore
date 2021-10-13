@@ -15,7 +15,7 @@ namespace CStore.Tests
 
         protected ColumnStore GetStore() => new(new InMemoryContainer(new PersistentContainerSettings(256)), CDTUnit.Month);
 
-        protected DateTime[] GetKeys(int everyMinute = 10)
+        protected virtual DateTime[] GetKeys(int everyMinute = 10)
         {
             var keys = new List<DateTime>();
 

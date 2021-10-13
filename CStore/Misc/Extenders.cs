@@ -19,42 +19,42 @@ namespace CStore
 
             if (existingData.Keys[0] > lastDTNew) // все существующие данные позже новых -> дописываем существующие данные в конец
             {
-                var (keys, values) = merge(newData.Keys, newData.Values, newDataRange,
-                                           existingData.Keys, existingData.Values, new Range(0, existingData.Keys.Length));
-                result = new KeyValueArray(keys, values).Pack(new Range(0, keys.Length));
+                var kva = merge(newData, newDataRange,
+                                existingData, new Range(0, existingData.Keys.Length));
+                result = kva.Pack(new Range(0, kva.Keys.Length));
             }
             else if (existingData.Keys[^1] < firstDTNew) // все существующие данные раньше новых -> дописываем существующие данные в начало
             {
-                var (keys, values) = merge(existingData.Keys, existingData.Values, new Range(0, existingData.Keys.Length),
-                                           newData.Keys, newData.Values, newDataRange);
-                result = new KeyValueArray(keys, values).Pack(new Range(0, keys.Length));
+                var kva = merge(existingData, new Range(0, existingData.Keys.Length),
+                                newData, newDataRange);
+                result = kva.Pack(new Range(0, kva.Keys.Length));
             }
             else
             {
-                var (keys, values) = merge(newData.Keys, newData.Values, newDataRange,
-                                           existingData.Keys, existingData.Values, new Range(0, existingData.Keys.Length));
-                Array.Sort(keys, values);
-                result = new KeyValueArray(keys, values).Pack(new Range(0, keys.Length));
+                var kva = merge(newData, newDataRange,
+                                existingData, new Range(0, existingData.Keys.Length));
+                Array.Sort(kva.Keys, kva.Values);
+                result = kva.Pack(new Range(0, kva.Keys.Length)); // +deduplicate keys
             }
 
             return result;
         }
 
-        static (CDT[] Keys, Array Values) merge(CDT[] newKeys,      Array newValues,      Range newRange,
-                                                CDT[] existingKeys, Array existingValues, Range existingRange)
+        static KeyValueArray merge(KeyValueArray newData,      Range newRange,
+                                   KeyValueArray existingData, Range existingRange)
         {
             var finalKeys   = new CDT[newRange.Length() + existingRange.Length()];
-            var finalValues = Array.CreateInstance(existingValues.GetElementType(), finalKeys.Length);
+            var finalValues = Array.CreateInstance(existingData.Values.GetElementType(), finalKeys.Length);
 
-            newKeys.AsSpan(newRange).CopyTo(finalKeys);
-            existingKeys.AsSpan(existingRange).CopyTo(finalKeys.AsSpan(newRange.Start.Value));
+            newData.Keys.AsSpan(newRange).CopyTo(finalKeys);
+            existingData.Keys.AsSpan(existingRange).CopyTo(finalKeys.AsSpan(newRange.Start.Value));
 
-            Array.Copy(newValues, newRange.Start.Value,
+            Array.Copy(newData.Values, newRange.Start.Value,
                        finalValues, 0, newRange.Length());
-            Array.Copy(existingValues, existingRange.Start.Value,
+            Array.Copy(existingData.Values, existingRange.Start.Value,
                        finalValues, newRange.Length(), existingRange.Length());
 
-            return (finalKeys, finalValues);
+            return new KeyValueArray(finalKeys, finalValues);
         }
     }
 }

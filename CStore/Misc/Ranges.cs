@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CStore
 {
@@ -10,6 +11,7 @@ namespace CStore
 
         internal RangeWithKey(CDT key, Range range) => (Key, Range) = (key, range);
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Key}: {Range.Start}-{Range.End} ({Range.Length()} item(s))";
     }
 
@@ -59,6 +61,7 @@ namespace CStore
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{From} - {To}";
     }
 
@@ -73,6 +76,7 @@ namespace CStore
 
         internal DateTimeRangeWithKey(CDT key, DateTimeRange? range) => (Key, Range) = (key, range);
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Key}: {Range?.From}-{Range?.To}";
     }
 

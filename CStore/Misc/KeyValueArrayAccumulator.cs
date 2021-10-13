@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace CStore
@@ -44,6 +45,7 @@ namespace CStore
             return new KeyValueArray(keys, values);
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"Elements={elementCount}";
     }
 }

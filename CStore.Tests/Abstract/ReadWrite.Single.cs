@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
 namespace CStore.Tests
 {
-    public class ReadWriteSingle : Base
+    public abstract class ReadWriteSingle : Base
     {
         const string PREFIX = "/test";
 

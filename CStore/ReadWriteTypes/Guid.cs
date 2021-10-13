@@ -67,10 +67,6 @@ namespace CStore.ReadWriteTypes
 
                 default: throw new NotSupportedException(compactType.ToString());
             }
-
-            // return MemoryMarshal.Cast<byte, Guid>(from)
-            //                     .Slice(range.Start.Value, range.Length())
-            //                     .ToArray();
         }
     }
 }

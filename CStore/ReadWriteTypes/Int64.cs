@@ -26,9 +26,10 @@ namespace CStore.ReadWriteTypes
             return compactType switch
             {
                 CompactType.Dictionary => from.UndictionarizeToInt64(range),
-                _ => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
-                                  .Slice(range.Start.Value, range.Length())
-                                  .ToArray()
+                CompactType.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
+                                                 .Slice(range.Start.Value, range.Length())
+                                                 .ToArray(),
+                _ => throw new NotSupportedException(compactType.ToString())
             };
         }
     }

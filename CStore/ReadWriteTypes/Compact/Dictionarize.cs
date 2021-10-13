@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -7,9 +8,11 @@ namespace CStore.ReadWriteTypes
 {
     static class DictionarizeExtenders
     {
+        const int MIN_DICTIONARY_ELEMENTS = 32;
+
         internal static bool CanBeDictionarize<T>(this Span<T> data)
         {
-            if (data.Length < 32) return false; // маленькие массивы не имеет смысла превращать в dictionary
+            if (data.Length < MIN_DICTIONARY_ELEMENTS) return false; // маленькие массивы не имеет смысла превращать в dictionary
 
             var checkFirstN = data.Length / 3; // проверяем не все, а только первую треть элементов (этого достаточно для получения результата можно или нет сделать словарь) 
 
@@ -75,7 +78,7 @@ namespace CStore.ReadWriteTypes
                 default: throw new NotSupportedException(keyType.ToString());
             }
         }
-        
+
         internal static Span<byte> CompactIndexes<T>(this DictionarizeResult<T> r) =>
             r.KeyType switch
             {
@@ -85,6 +88,8 @@ namespace CStore.ReadWriteTypes
                 _ => throw new NotSupportedException(r.KeyType.ToString())
             };
     }
+
+    #region DictionarizeResult<T> / UncompactIndexesResult
 
     readonly struct DictionarizeResult<T>
     {
@@ -104,6 +109,7 @@ namespace CStore.ReadWriteTypes
             };
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Indexes.Length} -> {Values.Length} ({KeyType})";
     }
 
@@ -117,5 +123,10 @@ namespace CStore.ReadWriteTypes
             Span    = span;
             Indexes = indexes;
         }
+
+        [ExcludeFromCodeCoverage]
+        public override string ToString() => $"{Indexes.Length} ({Span.Length} bytes)";
     }
+
+    #endregion
 }

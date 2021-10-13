@@ -35,22 +35,22 @@ namespace CStore
         /// <summary> seconds since (2000,1,1) </summary>
         public readonly int Value;
 
-        public CDT(string from) : this(DateTime.ParseExact(from, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal))
-        {
-        }
+        // public CDT(string from) : this(DateTime.ParseExact(from, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal))
+        // {
+        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CDT(DateTime dt) => Value = dt.Year is < MIN_YEAR or > MAX_YEAR ? 0 : (int)dt.Subtract(startDT).TotalSeconds;
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal CDT(int value) => Value = value;
-
-        internal CDT(ushort date, int hour = 0, int minute = 0, int seconds = 0) :
-            this(new DateTime(MIN_YEAR + ((date >> 9) & 0b1_111_111),
-                              ((date >> 5) & 0b11_111) + 1,
-                              (date & 0b1111) + 1, hour, minute, seconds))
-        {
-        }
+        
+        // internal CDT(ushort date, int hour = 0, int minute = 0, int seconds = 0) :
+        //     this(new DateTime(MIN_YEAR + ((date >> 9) & 0b1_111_111),
+        //                       ((date >> 5) & 0b11_111) + 1,
+        //                       (date & 0b1111) + 1, hour, minute, seconds))
+        // {
+        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CDT(int year, int month, int day) =>
@@ -73,8 +73,8 @@ namespace CStore
             };
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public CDT Add(TimeSpan ts) => new(Value + (int)ts.TotalSeconds);
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public CDT Add(TimeSpan ts) => new(Value + (int)ts.TotalSeconds);
 
         /// <summary> return next time unit from current (next minute, hour, month, ...) </summary>
         public CDT NextNearest(CDTUnit to)
@@ -97,19 +97,19 @@ namespace CStore
         /// D - zero-based
         /// Y - year-MIN_YEAR
         /// </summary>
-        public ushort Date
-        {
-            get
-            {
-                DateTime dt = this;
-
-                var y = dt.Year - MIN_YEAR;
-                var m = dt.Month - 1;
-                var d = dt.Day - 1;
-
-                return (ushort)(d & (m << 5) & (y << 9));
-            }
-        }
+        // public ushort Date
+        // {
+        //     get
+        //     {
+        //         DateTime dt = this;
+        //
+        //         var y = dt.Year - MIN_YEAR;
+        //         var m = dt.Month - 1;
+        //         var d = dt.Day - 1;
+        //
+        //         return (ushort)(d & (m << 5) & (y << 9));
+        //     }
+        // }
 
         #region DateTime <-> CDT, TimeSpan <- CDT
 
@@ -166,7 +166,8 @@ namespace CStore
 
         public int CompareTo(object? obj)   => obj is CDT cdt ? Value.CompareTo(cdt.Value) : -1;
         public int CompareTo(CDT     other) => Value.CompareTo(other.Value);
-
+        
+        [ExcludeFromCodeCoverage]
         public override string ToString() => ((DateTime)this).ToString(FMT);
     }
 }

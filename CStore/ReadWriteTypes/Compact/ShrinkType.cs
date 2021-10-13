@@ -3,29 +3,39 @@ using System.Runtime.InteropServices;
 
 namespace CStore.ReadWriteTypes
 {
+    #region CompactedResult
+
     readonly ref struct CompactedResult
     {
-        internal readonly DictionaryKey KeyType;
+        public readonly DictionaryKey       KeyType;
+        public readonly CompactedResultItem Indexes;
+        public readonly CompactedResultItem Values;
 
-        internal readonly Span<byte> Indexes;
-        internal readonly int        IndexesElements;
-
-        internal readonly Span<byte> Values;
-        internal readonly int        ValuesElements;
-
-        internal CompactedResult(DictionaryKey keyType,
-                                 Span<byte>    indexes, int indexesElements,
-                                 Span<byte>    values,  int valuesElements)
+        internal CompactedResult(DictionaryKey       keyType,
+                                 CompactedResultItem indexes,
+                                 CompactedResultItem values)
         {
             KeyType = keyType;
-
-            Indexes         = indexes;
-            IndexesElements = indexesElements;
-
-            Values         = values;
-            ValuesElements = valuesElements;
+            Indexes = indexes;
+            Values  = values;
         }
     }
+
+    readonly ref struct CompactedResultItem
+    {
+        public readonly Span<byte> Body;
+        public readonly int        ElementCount;
+
+        public CompactedResultItem(Span<byte> body, int elementCount)
+        {
+            Body         = body;
+            ElementCount = elementCount;
+        }
+
+        public override string ToString() => $"[{ElementCount}] {Body.Length} bytes";
+    }
+
+    #endregion
 
     static class ShrinkTypeExtenders
     {
@@ -33,28 +43,28 @@ namespace CStore.ReadWriteTypes
 
         internal static byte[] Combine(this CompactedResult packed)
         {
-            var buff = new byte[(2 + 4 + 4 + packed.Indexes.Length + packed.Values.Length)];
+            var buff = new byte[(2 + 4 + 4 + packed.Indexes.Body.Length + packed.Values.Body.Length)];
             var span = buff.AsSpan();
 
             span[0] = (byte)CompactType.Dictionary;
             span[1] = (byte)packed.KeyType;
             span    = span.Slice(2);
 
-            BitConverter.TryWriteBytes(span, packed.IndexesElements);
+            BitConverter.TryWriteBytes(span, packed.Indexes.ElementCount);
             span = span.Slice(4);
 
-            BitConverter.TryWriteBytes(span, packed.ValuesElements);
+            BitConverter.TryWriteBytes(span, packed.Values.ElementCount);
             span = span.Slice(4);
 
-            packed.Indexes.CopyTo(span);
-            packed.Values.CopyTo(span.Slice(packed.Indexes.Length));
+            packed.Indexes.Body.CopyTo(span);
+            packed.Values.Body.CopyTo(span.Slice(packed.Indexes.Body.Length));
 
             return buff;
         }
 
         #endregion
 
-        #region Compact (Int)
+        #region Compact (Int / Int64)
 
         internal static CompactedResult Compact(this DictionarizeResult<int> r)
         {
@@ -62,21 +72,17 @@ namespace CStore.ReadWriteTypes
             return r.KeyType switch
             {
                 DictionaryKey.Byte => new CompactedResult(DictionaryKey.Byte,
-                                                          r.Indexes.CompactToByte(), r.Indexes.Length,
-                                                          values, r.Values.Length),
+                                                          new CompactedResultItem(r.Indexes.CompactToByte(), r.Indexes.Length),
+                                                          new CompactedResultItem(values, r.Values.Length)),
                 DictionaryKey.Short => new CompactedResult(DictionaryKey.Short,
-                                                           r.Indexes.CompactToShort(), r.Indexes.Length,
-                                                           values, r.Values.Length),
+                                                           new CompactedResultItem(r.Indexes.CompactToShort(), r.Indexes.Length),
+                                                           new CompactedResultItem(values, r.Values.Length)),
                 DictionaryKey.Int => new CompactedResult(DictionaryKey.Int,
-                                                         r.Indexes.CompactToInt(), r.Indexes.Length,
-                                                         values, r.Values.Length),
+                                                         new CompactedResultItem(r.Indexes.CompactToInt(), r.Indexes.Length),
+                                                         new CompactedResultItem(values, r.Values.Length)),
                 _ => throw new NotSupportedException(r.KeyType.ToString())
             };
         }
-        
-        #endregion
-
-        #region Compact (Int64)
 
         internal static CompactedResult Compact(this DictionarizeResult<Int64> r)
         {
@@ -84,14 +90,14 @@ namespace CStore.ReadWriteTypes
             return r.KeyType switch
             {
                 DictionaryKey.Byte => new CompactedResult(DictionaryKey.Byte,
-                                                          r.Indexes.CompactToByte(), r.Indexes.Length,
-                                                          values, r.Values.Length),
+                                                          new CompactedResultItem(r.Indexes.CompactToByte(), r.Indexes.Length),
+                                                          new CompactedResultItem(values, r.Values.Length)),
                 DictionaryKey.Short => new CompactedResult(DictionaryKey.Short,
-                                                           r.Indexes.CompactToShort(), r.Indexes.Length,
-                                                           values, r.Values.Length),
+                                                           new CompactedResultItem(r.Indexes.CompactToShort(), r.Indexes.Length),
+                                                           new CompactedResultItem(values, r.Values.Length)),
                 DictionaryKey.Int => new CompactedResult(DictionaryKey.Int,
-                                                         r.Indexes.CompactToInt(), r.Indexes.Length,
-                                                         values, r.Values.Length),
+                                                         new CompactedResultItem(r.Indexes.CompactToInt(), r.Indexes.Length),
+                                                         new CompactedResultItem(values, r.Values.Length)),
                 _ => throw new NotSupportedException(r.KeyType.ToString())
             };
         }

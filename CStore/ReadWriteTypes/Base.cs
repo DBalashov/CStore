@@ -4,9 +4,8 @@ namespace CStore.ReadWriteTypes
 {
     abstract class BaseReaderWriter
     {
-        internal abstract byte[] Pack(Array a, Range range);
-
-        internal abstract Array Unpack(Span<byte> from, Range range);
+        internal abstract byte[] Pack(Array        a,    Range range);
+        internal abstract Array  Unpack(Span<byte> from, Range range);
     }
 
     public enum ColumnStoreType
@@ -27,7 +26,7 @@ namespace CStore.ReadWriteTypes
     {
         None,
         Dictionary,
-        RLE
+        // RLE
     }
 
     public enum DictionaryKey

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CStore
 {
@@ -16,6 +17,7 @@ namespace CStore
             Values = values ?? throw new ArgumentNullException(nameof(values));
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Keys[0]} - {Keys[^1]} ({Keys.Length}) {Values.GetElementType()}";
     }
 }

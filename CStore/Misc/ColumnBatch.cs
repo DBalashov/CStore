@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace CStore
@@ -55,6 +56,7 @@ namespace CStore
             return this;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Keys[0]} - ${Keys[^1]}: {Keys.Length} => {values.Count} columns";
     }
 }

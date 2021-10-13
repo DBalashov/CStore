@@ -10,13 +10,15 @@ namespace CStore.ReadWriteTypes
         {
             int length = 0;
             bw.Write(items.Length);
-            
+
+            var buff = new byte[ushort.MaxValue];
             foreach (var s in items)
             {
-                var bytes = Encoding.UTF8.GetBytes(s);
-                bw.Write((ushort)bytes.Length);
-                bw.Write(bytes);
-                length += bytes.Length + 2;
+                var bytesLength = Encoding.UTF8.GetBytes(s, buff);
+
+                bw.Write((ushort)bytesLength);
+                bw.Write(buff.AsSpan(0, bytesLength));
+                length += bytesLength + 2;
             }
 
             return length + 4;
