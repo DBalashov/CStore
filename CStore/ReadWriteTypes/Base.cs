@@ -22,14 +22,14 @@ namespace CStore.ReadWriteTypes
         Guid     = 9,
     }
 
-    public enum CompactType
+    public enum CompactKind
     {
         None       = 0,
         Dictionary = 1,
         RLE        = 2
     }
 
-    public enum DictionaryKey
+    public enum CompactType
     {
         Byte  = 1,
         Short = 2,

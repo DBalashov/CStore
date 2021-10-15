@@ -6,18 +6,16 @@ namespace CStore.ReadWriteTypes
 {
     sealed class DateTimeReaderWriter : BaseReaderWriter
     {
-        static readonly ArrayPool<CDT> pool = ArrayPool<CDT>.Shared;
-
         internal override byte[] Pack(Array a, Range range)
         {
             var values = (DateTime[])a;
-            var data   = pool.Rent(range.Length());
+            var data   = ArrayPool<CDT>.Shared.Rent(range.Length());
             
             for (int i = range.Start.Value, index = 0; i < range.End.Value; i++, index++)
                 data[index] = values[i];
 
             var r = MemoryMarshal.Cast<CDT, byte>(data.AsSpan(0, range.Length())).ToArray();
-            pool.Return(data);
+            ArrayPool<CDT>.Shared.Return(data);
             return r;
         }
 

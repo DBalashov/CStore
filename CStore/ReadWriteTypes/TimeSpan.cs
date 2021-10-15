@@ -6,18 +6,16 @@ namespace CStore.ReadWriteTypes
 {
     sealed class TimeSpanReaderWriter : BaseReaderWriter
     {
-        static readonly ArrayPool<int> pool = ArrayPool<int>.Shared;
-
         internal override byte[] Pack(Array a, Range range)
         {
             var values = (TimeSpan[])a;
-            var data   = pool.Rent(range.Length());
+            var data   = ArrayPool<int>.Shared.Rent(range.Length());
 
             for (int i = range.Start.Value, index = 0; i < range.End.Value; i++, index++)
                 data[index] = (int)values[i].TotalSeconds;
 
             var r = MemoryMarshal.Cast<int, byte>(data.AsSpan(0, range.Length())).ToArray();
-            pool.Return(data);
+            ArrayPool<int>.Shared.Return(data);
             return r;
         }
 

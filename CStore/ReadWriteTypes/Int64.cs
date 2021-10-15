@@ -17,7 +17,7 @@ namespace CStore.ReadWriteTypes
                 return a.Dictionarize<Int64>(range).Compact().Combine();
 
             var buff = new byte[2 + span.Length * 8];
-            buff[0] = (byte)CompactType.None;
+            buff[0] = (byte)CompactKind.None;
             buff[1] = 0;
 
             MemoryMarshal.Cast<Int64, byte>(span).CopyTo(buff.AsSpan(2));
@@ -26,12 +26,12 @@ namespace CStore.ReadWriteTypes
 
         internal override Array Unpack(Span<byte> from, Range range)
         {
-            var compactType = (CompactType)from[0];
+            var compactType = (CompactKind)from[0];
             return compactType switch
             {
-                CompactType.Dictionary => from.UndictionarizeToInt64(range),
-                CompactType.RLE => from.UnRLElize<Int64>(range),
-                CompactType.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
+                CompactKind.Dictionary => from.UndictionarizeToInt64(range),
+                CompactKind.RLE => from.UnRLElize<Int64>(range),
+                CompactKind.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
                                                  .Slice(range.Start.Value, range.Length())
                                                  .ToArray(),
                 _ => throw new NotSupportedException(compactType.ToString())

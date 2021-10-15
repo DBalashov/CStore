@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace CStore
 {
@@ -6,10 +7,11 @@ namespace CStore
     {
         public void Update(string prefix, ColumnBatch item, PartitionUpdateMode mode = PartitionUpdateMode.Merge)
         {
+            var keys = item.Keys.GetRange(unit).ToArray();
             foreach (var col in item.Columns)
             {
                 var values = new KeyValueArray(item.Keys, item[col]);
-                foreach (var part in values.Keys.GetRange(unit))
+                foreach (var part in keys)
                 {
                     var partitionName = part.Key.FormatPartitionName(prefix, col);
 

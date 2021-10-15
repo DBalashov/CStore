@@ -9,37 +9,37 @@ namespace CStore.ReadWriteTypes
         #region detectElementSize
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static DictionaryKey detectElementSize(short b) =>
+        static CompactType detectElementSize(short b) =>
             b switch
             {
-                <= 255 => DictionaryKey.Byte,
-                _ => DictionaryKey.Short
+                <= 255 => CompactType.Byte,
+                _ => CompactType.Short
             };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static DictionaryKey detectElementSize(int b) =>
+        static CompactType detectElementSize(int b) =>
             b switch
             {
-                <= 255 => DictionaryKey.Byte,
-                <= short.MaxValue => DictionaryKey.Short,
-                _ => DictionaryKey.Int
+                <= 255 => CompactType.Byte,
+                <= short.MaxValue => CompactType.Short,
+                _ => CompactType.Int
             };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static DictionaryKey detectElementSize(Int64 b) =>
+        static CompactType detectElementSize(Int64 b) =>
             b switch
             {
-                <= 255 => DictionaryKey.Byte,
-                <= short.MaxValue => DictionaryKey.Short,
-                <= int.MaxValue => DictionaryKey.Int,
-                _ => DictionaryKey.Int64
+                <= 255 => CompactType.Byte,
+                <= short.MaxValue => CompactType.Short,
+                <= int.MaxValue => CompactType.Int,
+                _ => CompactType.Int64
             };
 
-        static DictionaryKey? detectElementSize<T>(this Span<T> values) where T : struct
+        static CompactType? detectElementSize<T>(this Span<T> values) where T : struct
         {
             if (values.Length == 0) return null;
 
-            if (typeof(T) == typeof(byte)) return DictionaryKey.Byte;
+            if (typeof(T) == typeof(byte)) return CompactType.Byte;
 
             int elementSize = 1;
             if (typeof(T) == typeof(short))
@@ -62,7 +62,7 @@ namespace CStore.ReadWriteTypes
                 }
             else throw new NotSupportedException(typeof(T).ToString());
 
-            return (DictionaryKey)elementSize;
+            return (CompactType)elementSize;
         }
 
         #endregion
@@ -129,7 +129,7 @@ namespace CStore.ReadWriteTypes
                 indexOut += 1 + targetElementSize;
             }
 
-            buffOut[0] = (byte)CompactType.RLE;
+            buffOut[0] = (byte)CompactKind.RLE;
             buffOut[1] = (byte)targetElementSize;
             BitConverter.TryWriteBytes(buffOut.AsSpan(1 + 1), values.Length);
 
@@ -142,13 +142,13 @@ namespace CStore.ReadWriteTypes
         #region UnRLElize<T>
 
         // ReSharper disable once HeapView.BoxingAllocation
-        internal static T readElement<T>(this Span<byte> span, DictionaryKey actualElementType) where T : struct =>
+        internal static T readElement<T>(this Span<byte> span, CompactType actualElementType) where T : struct =>
             (T)Convert.ChangeType(actualElementType switch
             {
-                DictionaryKey.Byte => span[0],
-                DictionaryKey.Short => BitConverter.ToInt16(span),
-                DictionaryKey.Int => BitConverter.ToInt32(span),
-                DictionaryKey.Int64 => BitConverter.ToInt64(span),
+                CompactType.Byte => span[0],
+                CompactType.Short => BitConverter.ToInt16(span),
+                CompactType.Int => BitConverter.ToInt32(span),
+                CompactType.Int64 => BitConverter.ToInt64(span),
                 _ => throw new NotSupportedException(actualElementType.ToString())
             }, typeof(T));
 
@@ -158,8 +158,8 @@ namespace CStore.ReadWriteTypes
             if (span.Length <= 1 + 1 + 4)
                 return Array.Empty<T>();
 
-            var compactType       = (CompactType)span[0];
-            var actualElementType = (DictionaryKey)span[1];
+            var compactType       = (CompactKind)span[0];
+            var actualElementType = (CompactType)span[1];
             var elementCount      = BitConverter.ToInt32(span.Slice(1 + 1));
             if (elementCount == 0)
                 return Array.Empty<T>();

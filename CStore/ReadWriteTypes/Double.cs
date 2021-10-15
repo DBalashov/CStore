@@ -6,18 +6,16 @@ namespace CStore.ReadWriteTypes
 {
     sealed class DoubleReaderWriter : BaseReaderWriter
     {
-        static readonly ArrayPool<float> pool = ArrayPool<float>.Shared;
-
         internal override byte[] Pack(Array a, Range range)
         {
             var values = (double[])a;
-            var data   = pool.Rent(range.Length());
+            var data   = ArrayPool<float>.Shared.Rent(range.Length());
 
             for (int i = range.Start.Value, index = 0; i < range.End.Value; i++, index++)
                 data[index] = (float)values[i];
 
             var r = MemoryMarshal.Cast<float, byte>(data.AsSpan(0, range.Length())).ToArray();
-            pool.Return(data);
+            ArrayPool<float>.Shared.Return(data);
             return r;
         }
 

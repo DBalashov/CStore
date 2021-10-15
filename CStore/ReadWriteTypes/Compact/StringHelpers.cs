@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Text;
 
@@ -11,15 +12,18 @@ namespace CStore.ReadWriteTypes
             int length = 0;
             bw.Write(items.Length);
 
-            var buff = new byte[ushort.MaxValue];
+            var buff = ArrayPool<byte>.Shared.Rent(ushort.MaxValue);
+            var span = buff.AsSpan(0, ushort.MaxValue);
             foreach (var s in items)
             {
-                var bytesLength = Encoding.UTF8.GetBytes(s, buff);
+                var bytesLength = Encoding.UTF8.GetBytes(s, span);
 
                 bw.Write((ushort)bytesLength);
-                bw.Write(buff.AsSpan(0, bytesLength));
+                bw.Write(span.Slice(0, bytesLength));
                 length += bytesLength + 2;
             }
+
+            ArrayPool<byte>.Shared.Return(buff);
 
             return length + 4;
         }

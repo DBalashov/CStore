@@ -43,11 +43,11 @@ namespace CStore.ReadWriteTypes
             return new DictionarizeResult<T>(indexes, r.OrderBy(p => p.Value).Select(p => p.Key).ToArray());
         }
 
-        internal static UncompactIndexesResult UncompactIndexes(this Span<byte> span, DictionaryKey keyType, int keyCount, Range range)
+        internal static UncompactIndexesResult UncompactIndexes(this Span<byte> span, CompactType keyType, int keyCount, Range range)
         {
             switch (keyType)
             {
-                case DictionaryKey.Byte:
+                case CompactType.Byte:
                 {
                     var storedIndexes = span.Slice(0, keyCount)
                                             .Slice(range.Start.Value, range.End.Value);
@@ -58,7 +58,7 @@ namespace CStore.ReadWriteTypes
                     return new UncompactIndexesResult(span.Slice(keyCount), indexes);
                 }
 
-                case DictionaryKey.Short:
+                case CompactType.Short:
                 {
                     var storedIndexes = MemoryMarshal.Cast<byte, ushort>(span.Slice(0, keyCount * 2))
                                                      .Slice(range.Start.Value, range.End.Value);
@@ -68,7 +68,7 @@ namespace CStore.ReadWriteTypes
                     return new UncompactIndexesResult(span.Slice(keyCount * 2), indexes);
                 }
 
-                case DictionaryKey.Int:
+                case CompactType.Int:
                 {
                     var indexes = MemoryMarshal.Cast<byte, int>(span.Slice(0, keyCount * 4))
                                                .Slice(range.Start.Value, range.End.Value);
@@ -82,9 +82,9 @@ namespace CStore.ReadWriteTypes
         internal static Span<byte> CompactIndexes<T>(this DictionarizeResult<T> r) =>
             r.KeyType switch
             {
-                DictionaryKey.Byte => r.Indexes.CompactToByte(),
-                DictionaryKey.Short => r.Indexes.CompactToShort(),
-                DictionaryKey.Int => r.Indexes.CompactToInt(),
+                CompactType.Byte => r.Indexes.CompactToByte(),
+                CompactType.Short => r.Indexes.CompactToShort(),
+                CompactType.Int => r.Indexes.CompactToInt(),
                 _ => throw new NotSupportedException(r.KeyType.ToString())
             };
     }
@@ -95,7 +95,7 @@ namespace CStore.ReadWriteTypes
     {
         public readonly int[]         Indexes;
         public readonly T[]           Values;
-        public readonly DictionaryKey KeyType;
+        public readonly CompactType KeyType;
 
         internal DictionarizeResult(int[] indexes, T[] values)
         {
@@ -103,9 +103,9 @@ namespace CStore.ReadWriteTypes
             Values  = values;
             KeyType = indexes.Length switch
             {
-                > 0 and <= 255 => DictionaryKey.Byte,
-                >= 255 and <= 65535 => DictionaryKey.Short,
-                _ => DictionaryKey.Int
+                > 0 and <= 255 => CompactType.Byte,
+                >= 255 and <= 65535 => CompactType.Short,
+                _ => CompactType.Int
             };
         }
 

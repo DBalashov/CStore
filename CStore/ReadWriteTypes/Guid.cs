@@ -14,7 +14,7 @@ namespace CStore.ReadWriteTypes
             var span = ((Guid[])a).AsSpan(range);
             if (!span.CanBeDictionarize())
             {
-                bw.Write((byte)CompactType.None);
+                bw.Write((byte)CompactKind.None);
                 bw.Write(span.Length);
                 bw.Write(MemoryMarshal.Cast<Guid, byte>(span));
             }
@@ -22,7 +22,7 @@ namespace CStore.ReadWriteTypes
             {
                 var r = a.Dictionarize<Guid>(range);
 
-                bw.Write((byte)CompactType.Dictionary);
+                bw.Write((byte)CompactKind.Dictionary);
                 bw.Write((byte)r.KeyType);
 
                 bw.Write(r.Indexes.Length);
@@ -39,10 +39,10 @@ namespace CStore.ReadWriteTypes
 
         internal override Array Unpack(Span<byte> span, Range range)
         {
-            var compactType = (CompactType)span[0];
+            var compactType = (CompactKind)span[0];
             switch (compactType)
             {
-                case CompactType.None:
+                case CompactKind.None:
                 {
                     var keyCount = BitConverter.ToInt32(span.Slice(1));
                     return MemoryMarshal.Cast<byte, Guid>(span.Slice(1 + 4))
@@ -50,9 +50,9 @@ namespace CStore.ReadWriteTypes
                                         .ToArray();
                 }
 
-                case CompactType.Dictionary:
+                case CompactKind.Dictionary:
                 {
-                    var keyType  = (DictionaryKey)span[1];
+                    var keyType  = (CompactType)span[1];
                     var keyCount = BitConverter.ToInt32(span.Slice(2));
                     var r        = span.Slice(2 + 4).UncompactIndexes(keyType, keyCount, range);
 
