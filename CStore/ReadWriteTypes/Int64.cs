@@ -9,6 +9,10 @@ namespace CStore.ReadWriteTypes
         {
             var span = ((Int64[])a).AsSpan(range);
 
+            var rle = span.RLElize();
+            if (rle != null)
+                return rle;
+            
             if (span.CanBeDictionarize())
                 return a.Dictionarize<Int64>(range).Compact().Combine();
 
@@ -26,6 +30,7 @@ namespace CStore.ReadWriteTypes
             return compactType switch
             {
                 CompactType.Dictionary => from.UndictionarizeToInt64(range),
+                CompactType.RLE => from.UnRLElize<Int64>(range),
                 CompactType.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
                                                  .Slice(range.Start.Value, range.Length())
                                                  .ToArray(),

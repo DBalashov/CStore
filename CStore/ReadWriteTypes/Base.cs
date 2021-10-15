@@ -24,15 +24,16 @@ namespace CStore.ReadWriteTypes
 
     public enum CompactType
     {
-        None,
-        Dictionary,
-        // RLE
+        None       = 0,
+        Dictionary = 1,
+        RLE        = 2
     }
 
     public enum DictionaryKey
     {
-        Byte,
-        Short,
-        Int
+        Byte  = 1,
+        Short = 2,
+        Int   = 4,
+        Int64 = 8
     }
 }
