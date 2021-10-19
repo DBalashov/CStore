@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CStore
 {
@@ -33,10 +35,19 @@ namespace CStore
             }
             else
             {
-                var kva = merge(newData, newDataRange,
-                                existingData, new Range(0, existingData.Keys.Length));
-                Array.Sort(kva.Keys, kva.Values);
-                result = kva.Pack(new Range(0, kva.Keys.Length)); // +deduplicate keys
+                // todo optimize
+                var r = new Dictionary<CDT, object>();
+
+                for (var kindex = 0; kindex < existingData.Keys.Length; kindex++)
+                    r[existingData.Keys[kindex]] = existingData.Values.GetValue(kindex)!;
+                    
+                for (var kindex = 0; kindex < newDataKeys.Length; kindex++)
+                    r[newDataKeys[kindex]] = newData.Values.GetValue(newDataRange.Start.Value + kindex)!;
+                
+                var finalValues = Array.CreateInstance(newData.Values.GetElementType(), r.Count);
+                Array.Copy(r.Values.ToArray(), finalValues, finalValues.Length);
+
+                result = new KeyValueArray(r.Keys.ToArray(), finalValues).Pack(new Range(0, r.Keys.Count));
             }
 
             return result;

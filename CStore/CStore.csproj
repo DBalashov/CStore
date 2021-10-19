@@ -23,6 +23,15 @@
       <Compile Update="CStore.Update.cs">
         <DependentUpon>CStore.cs</DependentUpon>
       </Compile>
+      <Compile Update="ReadWriteTypes\Compact\ShrinkType.Int16.cs">
+        <DependentUpon>ShrinkType.cs</DependentUpon>
+      </Compile>
+      <Compile Update="ReadWriteTypes\Compact\ShrinkType.Int32.cs">
+        <DependentUpon>ShrinkType.cs</DependentUpon>
+      </Compile>
+      <Compile Update="ReadWriteTypes\Compact\ShrinkType.Int64.cs">
+        <DependentUpon>ShrinkType.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

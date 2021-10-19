@@ -20,4 +20,22 @@ namespace CStore
         [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Keys[0]} - {Keys[^1]} ({Keys.Length}) {Values.GetElementType()}";
     }
+    //
+    // public readonly struct KeyValueArray<T>
+    // {
+    //     public readonly CDT[] Keys;
+    //     public readonly T[]   Values;
+    //
+    //     internal KeyValueArray(CDT[] dt, T[] values)
+    //     {
+    //         if (dt.Length != values.Length)
+    //             throw new InvalidOperationException($"DT.Length != Values.Length ({dt.Length} vs {values.Length})");
+    //
+    //         Keys   = dt ?? throw new ArgumentNullException(nameof(dt));
+    //         Values = values ?? throw new ArgumentNullException(nameof(values));
+    //     }
+    //
+    //     [ExcludeFromCodeCoverage]
+    //     public override string ToString() => $"{Keys[0]} - {Keys[^1]} ({Keys.Length}) {Values.GetElementType()}";
+    // }
 }

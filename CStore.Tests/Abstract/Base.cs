@@ -13,6 +13,8 @@ namespace CStore.Tests
         protected DateTime SD = new(2021, 1, 1);
         protected DateTime ED = new(2022, 1, 1);
 
+        protected static readonly Random rand = new(Guid.NewGuid().GetHashCode());
+
         protected ColumnStore GetStore() => new(new InMemoryContainer(new PersistentContainerSettings(256)), CDTUnit.Month);
 
         protected virtual DateTime[] GetKeys(int everyMinute = 10)
