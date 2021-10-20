@@ -9,6 +9,8 @@ namespace CStore
         internal static string FormatPartitionName(this CDT key, string prefix, string columnName) => $"{prefix}/{columnName}/{key.ToString()}";
 
         internal static string FormatAllPartitions(this string prefix, string columnName) => $"{prefix}/{columnName}/*";
+        
+        internal static string FormatAllColumnsAndPartitions(this string prefix) => $"{prefix}/*";
 
         internal static Type GetElementType(this Array a) =>
             a.Length == 0 ? throw new ArgumentException("Array is empty & element type unknown") : a.GetValue(0)!.GetType();
