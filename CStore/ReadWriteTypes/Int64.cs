@@ -12,7 +12,7 @@ namespace CStore.ReadWriteTypes
             var rle = span.RLElize();
             if (rle != null)
                 return rle;
-            
+
             if (span.CanBeDictionarize())
                 return a.Dictionarize<Int64>(range).Compact().Combine();
 
@@ -31,9 +31,7 @@ namespace CStore.ReadWriteTypes
             {
                 CompactKind.Dictionary => from.UndictionarizeToInt64(range),
                 CompactKind.RLE => from.UnRLElize<Int64>(range),
-                CompactKind.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2))
-                                                 .Slice(range.Start.Value, range.Length())
-                                                 .ToArray(),
+                CompactKind.None => MemoryMarshal.Cast<byte, Int64>(from.Slice(2 + range.Start.Value * 8, range.Length() * 8)).ToArray(),
                 _ => throw new NotSupportedException(compactType.ToString())
             };
         }

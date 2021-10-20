@@ -15,14 +15,18 @@ namespace CStore
             span = span.Slice(4);
 
             var keys = span.Slice(0, count * 4).UnpackKeys();
-            span = span.Slice(count * 4);
+            if (keys.Length != count)
+                throw new InvalidOperationException($"Corrupted keys: actual length={keys.Length}, expected={count}");
 
-            var valueRange = range?.GetRange(keys);
-            var values     = readerWriters[dataType].Unpack(span, valueRange ?? new Range(0, count));
-            return new KeyValueArray(valueRange == null
-                                         ? keys
-                                         : keys.AsSpan(valueRange.Value).ToArray(),
-                                     values);
+            var valueRange = range?.GetRange(keys) ?? new Range(0, count);
+            var values     = readerWriters[dataType].Unpack(span.Slice(count * 4), valueRange);
+
+            var sliceOfKeys = keys.AsSpan(valueRange).ToArray();
+
+            if (values.Length != sliceOfKeys.Length)
+                throw new InvalidOperationException($"Corrupted values: actual length={values.Length}, expected={sliceOfKeys.Length}");
+
+            return new KeyValueArray(sliceOfKeys, values);
         }
     }
 }

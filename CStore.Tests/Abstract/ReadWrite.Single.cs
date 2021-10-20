@@ -21,7 +21,9 @@ namespace CStore.Tests
             TestContext.WriteLine("Keys / Columns       : {0} / {1}", batch.Keys.Length, string.Join(',', batch.Columns));
             TestContext.WriteLine("Length/Pages/PageSize: {0} / {1} / {2}\n", store.c.Length, store.c.TotalPages, store.c.PageSize);
 
-            var checkRange = new DateTimeRange(batch.Keys[0], batch.Keys[^1]);
+            DateTimeRange? checkRange = null;
+            if (!withWrite)
+                checkRange = new DateTimeRange(batch.Keys[0], batch.Keys[^1]);
 
             var r = store.Read(new[] { PREFIX }, batch.Columns, checkRange);
 
@@ -38,7 +40,10 @@ namespace CStore.Tests
         {
             var offset = rand.Next(batch.Keys.Length / 2) + 1;
             var length = rand.Next(batch.Keys.Length / 3 + 1);
-            var b      = new ColumnBatch(batch.Keys.Skip(offset).Take(length).Select(p => (DateTime)p).ToArray());
+
+            TestContext.WriteLine("Random [offs/length]: {0} / {1}", offset, length);
+
+            var b = new ColumnBatch(batch.Keys.Skip(offset).Take(length).Select(p => (DateTime)p).ToArray());
             foreach (var col in batch.Columns)
             {
                 var a = Array.CreateInstance(batch[col].GetElementType(), length);

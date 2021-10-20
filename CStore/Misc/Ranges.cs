@@ -33,7 +33,7 @@ namespace CStore
             var idxTo   = Array.BinarySearch(keys, To);
 
             return new Range(idxFrom < 0 ? ~idxFrom : idxFrom,
-                             idxTo < 0 ? ~idxTo : idxTo);
+                             idxTo < 0 ? ~idxTo : idxTo + 1);
         }
 
         internal IEnumerable<DateTimeRangeWithKey> GetKeyInRanges(CDTUnit unit)
@@ -43,10 +43,20 @@ namespace CStore
 
             var start = from.Trunc(unit);
 
-            yield return new DateTimeRangeWithKey(start,
-                                                  start != from
-                                                      ? new DateTimeRange(from, from.NextNearest(unit))
-                                                      : null);
+            if (start == from)
+            {
+                yield return new DateTimeRangeWithKey(start, null); // первый парт целиком
+            }
+            else
+            {
+                if (from.Trunc(unit) == to.Trunc(unit)) // запрошенный range укладывается целиком в первый парт - возвращаем и прекращаем
+                {
+                    yield return new DateTimeRangeWithKey(start, new DateTimeRange(from, to));
+                    yield break;
+                }
+
+                yield return new DateTimeRangeWithKey(start, new DateTimeRange(from, from.NextNearest(unit)));
+            }
 
             while (true)
             {

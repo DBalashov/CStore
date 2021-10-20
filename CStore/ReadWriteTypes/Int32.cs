@@ -31,9 +31,7 @@ namespace CStore.ReadWriteTypes
             {
                 CompactKind.Dictionary => from.UndictionarizeToInt(range),
                 CompactKind.RLE => from.UnRLElize<int>(range),
-                CompactKind.None => MemoryMarshal.Cast<byte, int>(from.Slice(2))
-                                                 .Slice(range.Start.Value, range.Length())
-                                                 .ToArray(),
+                CompactKind.None => MemoryMarshal.Cast<byte, int>(from.Slice(2 + range.Start.Value * 4, range.Length() * 4)).ToArray(),
                 _ => throw new NotSupportedException(compactType.ToString())
             };
         }

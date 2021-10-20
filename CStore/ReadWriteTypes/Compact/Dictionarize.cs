@@ -49,9 +49,8 @@ namespace CStore.ReadWriteTypes
             {
                 case CompactType.Byte:
                 {
-                    var storedIndexes = span.Slice(0, keyCount)
-                                            .Slice(range.Start.Value, range.End.Value);
-                    var indexes = new int[storedIndexes.Length];
+                    var storedIndexes = span.Slice(0, keyCount).Slice(range.Start.Value, range.Length());
+                    var indexes       = new int[storedIndexes.Length];
                     for (var i = 0; i < storedIndexes.Length; i++)
                         indexes[i] = storedIndexes[i];
 
@@ -60,8 +59,7 @@ namespace CStore.ReadWriteTypes
 
                 case CompactType.Short:
                 {
-                    var storedIndexes = MemoryMarshal.Cast<byte, ushort>(span.Slice(0, keyCount * 2))
-                                                     .Slice(range.Start.Value, range.End.Value);
+                    var storedIndexes = MemoryMarshal.Cast<byte, ushort>(span.Slice(0, keyCount * 2)).Slice(range.Start.Value, range.Length());
                     var indexes = new int[storedIndexes.Length];
                     for (var i = 0; i < storedIndexes.Length; i++)
                         indexes[i] = storedIndexes[i];
@@ -70,8 +68,7 @@ namespace CStore.ReadWriteTypes
 
                 case CompactType.Int:
                 {
-                    var indexes = MemoryMarshal.Cast<byte, int>(span.Slice(0, keyCount * 4))
-                                               .Slice(range.Start.Value, range.End.Value);
+                    var indexes = MemoryMarshal.Cast<byte, int>(span.Slice(0, keyCount * 4)).Slice(range.Start.Value, range.Length());
                     return new UncompactIndexesResult(span.Slice(keyCount * 4), indexes);
                 }
 

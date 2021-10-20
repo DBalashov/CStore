@@ -10,7 +10,7 @@ namespace CStore
         {
             [ColumnStoreType.Bool]     = new BoolReaderWriter(),
             [ColumnStoreType.Byte]     = new ByteReaderWriter(),
-            [ColumnStoreType.Short]    = new ShortReaderWriter(),
+            [ColumnStoreType.Short]    = new Int16ReaderWriter(),
             [ColumnStoreType.Int]      = new Int32ReaderWriter(),
             [ColumnStoreType.Int64]    = new Int64ReaderWriter(),
             [ColumnStoreType.Double]   = new DoubleReaderWriter(),

@@ -26,10 +26,8 @@ namespace CStore.ReadWriteTypes
             var compactType = (CompactKind)from[0];
             return compactType switch
             {
-                CompactKind.RLE => from.UnRLElize<int>(range),
-                CompactKind.None => MemoryMarshal.Cast<byte, byte>(from.Slice(2))
-                                                 .Slice(range.Start.Value, range.Length())
-                                                 .ToArray(),
+                CompactKind.RLE => from.UnRLElize<byte>(range),
+                CompactKind.None => MemoryMarshal.Cast<byte, byte>(from.Slice(2 + range.Start.Value, range.Length())).ToArray(),
                 _ => throw new NotSupportedException(compactType.ToString())
             };
         }

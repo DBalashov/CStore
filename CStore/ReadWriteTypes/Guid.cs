@@ -45,9 +45,7 @@ namespace CStore.ReadWriteTypes
                 case CompactKind.None:
                 {
                     var keyCount = BitConverter.ToInt32(span.Slice(1));
-                    return MemoryMarshal.Cast<byte, Guid>(span.Slice(1 + 4))
-                                        .Slice(range.Start.Value, range.End.Value)
-                                        .ToArray();
+                    return MemoryMarshal.Cast<byte, Guid>(span.Slice(1 + 4 + range.Start.Value * 16, range.Length() * 16)).ToArray();
                 }
 
                 case CompactKind.Dictionary:

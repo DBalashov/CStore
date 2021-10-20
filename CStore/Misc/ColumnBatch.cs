@@ -57,6 +57,6 @@ namespace CStore
         }
 
         [ExcludeFromCodeCoverage]
-        public override string ToString() => $"{Keys[0]} - ${Keys[^1]}: {Keys.Length} => {values.Count} columns";
+        public override string ToString() => $"{Keys[0]} - {Keys[^1]}: {Keys.Length} => {values.Count} columns";
     }
 }

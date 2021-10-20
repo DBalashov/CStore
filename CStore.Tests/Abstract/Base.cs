@@ -8,12 +8,9 @@ namespace CStore.Tests
 {
     public abstract class Base
     {
-        // protected readonly Random r = new(Guid.Empty.GetHashCode());
-
-        protected DateTime SD = new(2021, 1, 1);
-        protected DateTime ED = new(2022, 1, 1);
-
-        protected static readonly Random rand = new(Guid.NewGuid().GetHashCode());
+        protected                 DateTime SD   = new(2021, 1, 1);
+        protected                 DateTime ED   = new(2022, 1, 1);
+        protected static readonly Random   rand = new(Guid.NewGuid().GetHashCode());
 
         protected ColumnStore GetStore() => new(new InMemoryContainer(new PersistentContainerSettings(256)), CDTUnit.Month);
 
@@ -37,7 +34,9 @@ namespace CStore.Tests
             Assert.IsNotNull(data, columnName);
             Assert.IsNotNull(data.Keys, columnName);
             Assert.IsNotNull(data.Values, columnName);
-            Assert.IsTrue(data.Values.Length == data.Keys.Length, "Values/Keys: {0} / {1}", data.Values.Length, data.Keys.Length);
+            Assert.IsTrue(data.Keys.Length == data.Values.Length, "Actual/Expected keys/values: {0} / {1}", data.Keys.Length, data.Values.Length);
+            Assert.IsTrue(data.Keys.Length == batch.Keys.Length, "Actual/Expected keys: {0} / {1}", data.Keys.Length, batch.Keys.Length);
+            Assert.IsTrue(data.Values.Length == batch[columnName].Length, "Actual/Expected values: {0} / {1}", data.Values.Length, batch[columnName].Length);
 
             CDT prev = default;
             for (var i = 0; i < data.Keys.Length; i++)
